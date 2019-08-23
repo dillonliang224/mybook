@@ -1,5 +1,4 @@
-# Introduction
+# mybook -- 你方唱罢我登场
 
-mybook
 
 我的小书，好记性不如烂笔头。
