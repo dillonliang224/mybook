@@ -15,3 +15,7 @@ git ls-tree COMMIT_ID
 ```sh
 git config --list
 ```
+
+
+常用命令：
+http://www.imooc.com/article/269298
