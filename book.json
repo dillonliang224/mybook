@@ -1,4 +1,13 @@
 {
 	"title": "你方唱罢我登场",
-	"description": "我站在山的尽头 看着云朵飞走 你像昨夜的海市蜃楼"
+	"description": "我站在山的尽头 看着云朵飞走 你像昨夜的海市蜃楼",
+	"author": "dillon",
+	"links": {
+        "sidebar": {
+            "Home": "http://www.zhangjikai.com"
+        }
+    },
+	"plugins": [
+        "theme-comscore"
+    ]
 }
