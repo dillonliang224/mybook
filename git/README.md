@@ -16,6 +16,11 @@ git ls-tree COMMIT_ID
 git config --list
 ```
 
+rebase后提交代码
+```sh
+git push --force-with-lease origin feature
+```
+
 
 常用命令：
 http://www.imooc.com/article/269298
