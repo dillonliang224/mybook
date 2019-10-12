@@ -14,6 +14,7 @@
 	* [sublime快捷键](每日小记/sublime.md)
 	* [linux常用命令](每日小记/linux.md)
 	* [ansible](每日小记/ansible.md)
+	* [chrome](每日小记/chrome.md)
 * [sectiom](section1/README.md)
     * [example 1](section1/example1.md)
 
