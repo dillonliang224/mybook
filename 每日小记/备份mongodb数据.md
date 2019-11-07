@@ -9,8 +9,10 @@
 #!/bin/bash
 
 LOG_DIR=/mnt/mongodb
+## 数据库原始文件目录
 SOURCE_DIR=/mnt/mongodb/data
-BACKUP_DIR=/mnt/mongodb/data
+## 数据库打包备份数据目录
+BACKUP_DIR=/mnt/mongodb/backup
 
 REMOTE_IP=127.0.0.1
 REMOTE_USER=root
