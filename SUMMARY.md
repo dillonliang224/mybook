@@ -15,6 +15,7 @@
 	* [linux常用命令](每日小记/linux.md)
 	* [ansible](每日小记/ansible.md)
 	* [chrome](每日小记/chrome.md)
+	* [备份mongodb数据](每日小记/备份mongodb数据.md)
 * [sectiom](section1/README.md)
     * [example 1](section1/example1.md)
 
