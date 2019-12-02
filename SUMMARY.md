@@ -2,6 +2,7 @@
 
 * [Introduction](README.md)
 * [node.js核心模块](nodejs/README.md)
+	* [dns](nodejs/dns.md)
 	* [console](nodejs/console.md)
 	* [os](nodejs/os.md)
 * [node.js第三方模块](nodejs3/README.md)
