@@ -6,6 +6,7 @@
 	* [console](nodejs/console.md)
 	* [os](nodejs/os.md)
 	* [cluster](nodejs/cluster.md)
+	* [path](nodejs/path.md)
 * [node.js第三方模块](nodejs3/README.md)
 	* [delegates](nodejs3/delegates.md)
 	* [mm](nodejs3/mm.md)
