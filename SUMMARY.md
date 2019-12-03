@@ -18,6 +18,7 @@
 	* [google ss](每日小记/google.md)
 	* [sublime快捷键](每日小记/sublime.md)
 	* [linux常用命令](每日小记/linux.md)
+	* [mac常用命令](每日小记/mac.md)
 	* [ansible](每日小记/ansible.md)
 	* [chrome技巧](每日小记/chrome.md)
 	* [eslint](每日小记/eslint.md)
