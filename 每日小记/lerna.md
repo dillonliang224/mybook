@@ -50,11 +50,22 @@ lerna add module-1
 lerna add babel-core
 ```
 
+### lerna list
+
+列举当前lerna 库包含的包
+
 ### lerna publish
 
 发布新的库版本
 
 ### lerna version
+
+修改package版本，做了如下工作：
+- 识别出修改的包
+- 生成新的版本号
+- 修改package.json文件
+- 提交以上更改并打tag
+- 推送到git上
 
 ### lerna bootstrap
 
@@ -65,9 +76,6 @@ bootstrap作了如下工作
 - 执行 npm run prepublish
 - 执行 npm run prepare
 
-### lerna list
-
-列举当前lerna 库包含的包
 
 ### lerna changed
 
