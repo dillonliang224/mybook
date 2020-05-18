@@ -23,6 +23,7 @@
 * [linux](linux/README.md)
 	* [学习](linux/index.md)
 	* [x86架构](linux/x86架构.md)
+	* [从BIOS到bootloader](linux/bios-bootloader.md)
 	* [linux常用命令](每日小记/linux.md)
 * [每日小记](每日小记/README.md)
 	* [grpc-关于](每日小记/grpc-about.md)
