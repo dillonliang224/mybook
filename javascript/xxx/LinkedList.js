@@ -95,13 +95,17 @@ export default class LinkedList {
 		return deletedTail;
 	}
 
-	find(value) {
+	find({ value = undefined, callback = undefined }) {
 		if (!this.head) {
 			return null;
 		}
 
 		let currentNode = this.head
 		while(currentNode) {
+			if (callback && callback(currentNode.value)) {
+				return currentNode;
+			}
+
 			// 如果查找的值和链表某一节点的值相等，则返回此节点，否则遍历下一节点
 			if (value !== undefined && value === currentNode.value) {
 				return currentNode;
@@ -109,6 +113,8 @@ export default class LinkedList {
 
 			currentNode = currentNode.next;
 		}
+
+		return null;
 	}
 
 	delete(value) {
