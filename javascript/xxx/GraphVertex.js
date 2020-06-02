@@ -81,6 +81,19 @@ export default class GraphVertex {
 	}
 
 	/**
+	 * 两个顶点之间是否是邻居关系
+	 * @param {GraphVertex} vertex
+	 * @returns {boolean}
+	*/
+	hasNeighbor(vertex) {
+		const vertexNode = this.edges.find({
+			callback: edge => edge.startVertex === vertex || edge.endVertex === vertex
+		})
+
+		return !!vertexNode
+	}
+
+	/**
 	 * 寻找两个顶点之间的边
 	 * @param {GraphVertex} vertex
 	 * @returns {(GraphEdge|null)}
@@ -110,5 +123,13 @@ export default class GraphVertex {
 		this.getEdges().forEach(edge => this.deleteEdge(edge));
 
 		return this;
+	}
+
+	/**
+	 * @param {function} [callback]
+	 * @returns {string}
+	*/
+	toString(callback) {
+		return callback ? callback(this.value) : `${this.value}`
 	}
 }
