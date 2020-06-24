@@ -2,11 +2,14 @@
 // 8皇后
 
 let result = []
+let count = 0
 calQueue(0)
+console.log(count, '---')
 
 function calQueue(row) {
 	console.log("row ->", row)
 	if (row >= 8) {
+		count++
 		printQueue(result)
 		return
 	}
