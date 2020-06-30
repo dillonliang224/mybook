@@ -10,19 +10,19 @@ defer后面必须是函数或方法的调用，不能是语句。
 package main
 
 import (
-	"fmt"
+    "fmt"
 )
 
 func main() {
-	defer_call()
+    defer_call()
 }
 
 func defer_call() {
-	defer func() { fmt.Println("打印前") }()
-	defer func() { fmt.Println("打印中") }()
-	defer func() { fmt.Println("打印后") }()
+    defer func() { fmt.Println("打印前") }()
+    defer func() { fmt.Println("打印中") }()
+    defer func() { fmt.Println("打印后") }()
 
-	panic("触发异常")
+    panic("触发异常")
 }
 
 /*
@@ -35,19 +35,20 @@ panic: 触发异常
 ```
 
 defer函数的实参在注册时通过值拷贝传递进去。
+
 ```go
 package main
 
 import "fmt"
 
 func main() {
-	a := 0
-	defer func(i int) {
-		println("defer a: ", i)
-	}(a)
+    a := 0
+    defer func(i int) {
+        println("defer a: ", i)
+    }(a)
 
-	a++
-	fmt.Println("main a: ", a)
+    a++
+    fmt.Println("main a: ", a)
 }
 /*
 输出：
