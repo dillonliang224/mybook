@@ -369,19 +369,11 @@ func (v *Value) Load() (x interface{}) {
 
 > 建议：不要把内部使用的atomic.Value原子值暴露给外界，如果非要暴露也要通过API封装形式，做严格的check。
 
-
-
 ### Sync.WaitGroup
-
-
 
 sync.WaitGroup底层是使用计数器和信号量来实现同步的。
 
-
-
 > 不要把增加其计数器值的操作和调用其Wait方法的代码，放在不同的goroutine中执行。换句话说，要杜绝对同一个WaitGroup值的两种操作的并发执行。
-
-
 
 #### 信号量
 
@@ -389,17 +381,11 @@ sync.WaitGroup底层是使用计数器和信号量来实现同步的。
 
 可简单理解为信号量为一个数值：
 
--  当信号量>0时，表示资源可用，获取信号量时系统自动将信号量减1；
+- 当信号量>0时，表示资源可用，获取信号量时系统自动将信号量减1；
 
 - 当信号量==0时，表示资源暂不可用，获取信号量时，当前线程会进入睡眠，当信号量为正时被唤醒；
 
-
-
 #### 内存对齐
-
-
-
-
 
 参考：
 
@@ -408,3 +394,68 @@ sync.WaitGroup底层是使用计数器和信号量来实现同步的。
 [Go WaitGroup实现原理_weixin_34259159的博客-CSDN博客_go waitgroup](https://blog.csdn.net/weixin_34259159/article/details/91699572)
 
 [sync.WaitGroup实现原理详解](https://memosa.cn/golang/2019/10/31/golang-waitgroup.html)
+
+### Sync.Once
+
+与sync.WaitGroup类型一样，sync.Once类型（以下简称Once类型）也属于结构体类型，同样也是开箱即用和并发安全的。由于这个类型中包含了一个sync.Mutex类型的字段，所以，复制该类型的值也会导致功能的失效。
+
+#### sync.Once类型值的Do方法是怎么保证只执行参数函数一次的？
+
+Once类型的Do方法只接受一个参数，这个参数的类型必须是func()，即：无参数声明和结果声明的函数。
+
+该方法的功能并不是对每一种参数函数都只执行一次，而是只执行“首次被调用时传入的”那个函数，并且之后不会再执行任何参数函数。
+
+所以，如果你有多个只需要执行一次的函数，那么就应该为它们中的每一个都分配一个sync.Once类型的值（以下简称Once值）。
+
+#### 两个特点
+
+**第一个特点**，由于Do方法只会在参数函数执行结束之后把done字段的值变为1，因此，如果参数函数的执行需要很长时间或者根本就不会结束（比如执行一些守护任务），那么就有可能会导致相关 goroutine 的同时阻塞。例如，有多个 goroutine 并发地调用了同一个Once值的Do方法，并且传入的函数都会一直执行而不结束。那么，这些 goroutine 就都会因调用了这个Do方法而阻塞。因为，除了那个抢先执行了参数函数的 goroutine 之外，其他的 goroutine 都会被阻塞在锁定该Once值的互斥锁m的那行代码上。
+
+**第二个特点**，Do方法在参数函数执行结束后，对done字段的赋值用的是原子操作，并且，这一操作是被挂在defer语句中的。因此，不论参数函数的执行会以怎样的方式结束，done字段的值都会变为1。也就是说，即使这个参数函数没有执行成功（比如引发了一个 panic），我们也无法使用同一个Once值重新执行它了。所以，如果你需要为参数函数的执行设定重试机制，那么就要考虑Once值的适时替换问题。
+
+### Sync.Pool
+
+Sync.Pool，临时对象池，可以当作某种数据的缓存来用。
+
+#### 为什么说临时对象池中的值会被及时地清理掉？
+
+> 因为，Go语言运行时系统中的垃圾回收器，所以在每次开始执行之前，都会对所有已创建的临时对象池中的值进行全面地清楚。
+
+sync包在被初始化的时候，会向 Go 语言运行时系统注册一个函数，这个函数的功能就是清除所有已创建的临时对象池中的值。我们可以把它称为池清理函数。
+
+```go
+func init() {
+    runtime_registerPoolCleanup(poolCleanup)
+}
+```
+
+一旦池清理函数被注册到了 Go 语言运行时系统，后者在每次即将执行垃圾回收时就都会执行前者。
+
+另外，在sync包中还有一个包级私有的全局变量。这个变量代表了当前的程序中使用的所有临时对象池的汇总，它是元素类型为*sync.Pool的切片。我们可以称之为池汇总列表。
+
+```go
+var (
+    allPoolsMu Mutex
+
+    // allPools is the set of pools that have non-empty primary
+    // caches. Protected by either 1) allPoolsMu and pinning or 2)
+    // STW.
+    allPools []*Pool
+
+    // oldPools is the set of pools that may have non-empty victim
+    // caches. Protected by STW.
+    oldPools []*Pool
+)
+```
+
+通常，在一个临时对象池的Put方法或Get方法第一次被调用的时候，这个池就会被添加到池汇总列表中。正因为如此，池清理函数总是能访问到所有正在被真正使用的临时对象池。
+
+更具体地说，池清理函数会遍历池汇总列表。对于其中的每一个临时对象池，它都会先将池中所有的私有临时对象和共享临时对象列表都置为nil，然后再把这个池中的所有本地池列表都销毁掉。
+
+最后，池清理函数会把池汇总列表重置为空的切片。如此一来，这些池中存储的临时对象就全部被清除干净了。
+
+参考：
+
+[深度解密 Go 语言之 sync.Pool - Stefno - 博客园](https://www.cnblogs.com/qcrao-2018/p/12736031.html)
+
+[33 | 临时对象池sync.Pool-极客时间](https://time.geekbang.org/column/article/42160)
