@@ -1,10 +1,6 @@
 # Golang TODO
 
-- 逃逸分析
-
-- Golang Debug
-
-- 垃圾回收
+- 
 
 - 字节对齐
 
