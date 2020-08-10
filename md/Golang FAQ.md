@@ -583,6 +583,9 @@ func main() {
 // 改成:
 func main() {
     fmt.Println(utf8.RuneCountInString("你好"))
+    len([]rune(str))
+    bytes.Count([]byte(str), nil) -1
+    strings.Count(str, "") -1
 }
 ```
 
