@@ -4,7 +4,7 @@
 
 #### 存储引擎
 
-MyISAM
+##### MyISAM
 
 特点：
 
@@ -12,8 +12,9 @@ MyISAM
 - 表损坏修复
 - Myisam 表支持的索引类型（全文索引）
 - Myisam 支持表压缩（压缩后，此表为只读，不可以写入。使用 myisampack 压缩）
+- 不支持事务和行级锁，不支持外键，并且索引和数据是分开存储的
 
-#### InnoDB
+##### InnoDB
 
 mysql5.5及之后版本默认的存储引擎
 
@@ -31,9 +32,85 @@ mysql5.5及之后版本默认的存储引擎
 
 ### 索引
 
-### ACID、隔离级别、RR
+采用B+树数据结果存储索引。
+
+B+树的非叶子节点存储key+指向下一节点的指针，叶子节点之间通过链表相互链接
+
+B树的非叶子节点存储key+key指向的数据+指向下一节点的指针
+
+所以说B+树非叶子节点能存储更多的key，且利于范围查询，而B树要做中序遍历
+
+
+
+索引的存储形式有聚簇索引和非聚簇索引，其中聚簇索引是表中的主键索引，如果没有主键索引，那么使用表中的唯一索引，如果还没有，innodb会默认创建一个隐式的主键。
+
+非聚簇索引存储的是key和指向聚簇索引的的主键
+
+所以如果通过非聚簇索引查询数据，它要先去非聚簇索引查询到主键ID的值，然后再去聚簇索引里查找对应的数据地址。这就是mysql里的回表现象。
+
+当然，如果非聚簇索引包含了要查询的所有键，那么不需要回表查询，这种现象叫做索引覆盖。
+
+
+
+### 锁的类型有哪些
+
+mysql锁分为**共享锁**和**排他锁**，也叫做读锁和写锁。
+
+读锁是共享的，可以通过lock in share mode实现，这时候只能读不能写。
+
+写锁是排他的，它会阻塞其他的写锁和读锁。从颗粒度来区分，可以分为**表锁**和**行锁**两种。
+
+
+
+表锁会锁定整张表并且阻塞其他用户对该表的所有读写操作，比如alter修改表结构的时候会锁表。
+
+行锁又可以分为**乐观锁**和**悲观锁**，悲观锁可以通过for update实现，乐观锁则通过版本号实现。
+
+
+
+### 事务特性和隔离级别
+
+事务基本特性ACID分别是：
+
+- 原子性
+
+- 一致性
+
+- 隔离性
+
+- 持久性
+
+
+
+隔离级别分别是：
+
+- read uncommit: 读未提交，可能会读到其他事务未提交的数据，也叫做脏读。
+
+- read commit：读已提交，两次读取结果不一致，叫做不可重复读。**不可重复读解决了脏读读问题**，它只会读取已经提交的事务。
+
+- repeatable read： 可重复读，这是mysql的默认级别，就是每次读取结果都一样，但是**有可能产生幻读**。间隙锁+MVCC解决幻读问题
+
+- serializable：串行，一般是不会使用的，它会给每一行读取的数据加锁，会导致大量超时和锁竞争的问题。
+
+
+
+#### ACID靠什么保证
+
+A原子性由undo log日志保证，它记录了需要回滚的日志信息，事务回滚时撤销已经执行成功的sql
+
+C一致性靠AID来保证
+
+I隔离性由MVCC来保证
+
+D持久性由内存+redo log来保证，mysql修改数据同时在内存和redo log记录这次操作，事务提交的时候通过redo log刷盘，宕机的时候可以从redo log恢复。
+
+
 
 ### MVCC
+
+MVCC： 多版本并发控制，实际上就是保存了数据在某个时间点的快照。
+
+
 
 ### readview
 
@@ -77,7 +154,9 @@ https://zhuanlan.zhihu.com/p/66791480
 
 ### 日志种类，主从同步机制，数据延迟
 
-#### 日志种类 https://database.51cto.com/art/201806/576300.htm
+
+
+ 日志种类 https://database.51cto.com/art/201806/576300.htm
 
 - bin log 主要用于主从同步，把sql命令顺序写入日志
 - undo log 主要实现事务的原子行
@@ -130,7 +209,23 @@ Note：
 **异步复制**就是最上面所说的有从库读取二进制文件，并写入本地中继日志里，主库执行完事务后立刻返回
 **全同步复制**就是主库要等所有从库复制了数据后才返回，严重影响性能
 
+ 
+
 ### 分库分表
+
+
+
+账户600万*28
+
+充值600万*28
+
+购买记录700万 28库 128表
+
+购买记录单条： 600万
+
+金币日志：9000万 16个库
+
+
 
 简单来说，数据的切分就是通过某种特定的条件，将我们存放在同一个数据库中的数据分散存放到多个数据库（主机）中，以达到分散单台设备负载的效果，即分库分表。
 
@@ -155,11 +250,67 @@ MySQL 读写分离能提高性能的原因在于：
 
 ### 死锁
 
+- 超时处理
+
+- 死锁检测
+
+### MYSQL 主从服务器，如果主服务器是InnoDB引擎，从服务器是MyISAM引擎，应用中会遇到什么问题？
+
+- 1.MyISAM表锁，所以每次插入都会锁表一次。
+
+- 2.MyISAM不支持事务，备份时可能会丢失数据。
+
 ## Redis
+
+
+
+#### 基本数据类型
+
+- 字符串：sds
+
+- 链表linkedlist
+
+- 字典hashtable
+
+- 跳跃表skiplist
+
+- 整数集合intset
+
+- 压缩列表ziplist
+
+
+
+#### 为什么这么快
+
+单机redis可以支撑每秒10几万的并发，主要因为如下几点：
+
+- 完全基于内存操作
+
+- C语言实现，优化过的数据结构，基于几种基础的数据结构，redis做了大量的优化，性能极高
+
+- 使用单线程，无上下文的切换成本
+
+- 基于非阻塞的I/O多路复用机制
+
+
+
+#### 为什么Redis6.0之后又改用多线程呢？
+
+redis使用多线程并非是完全摒弃单线程，redis还是使用单线程模型来处理客户端的请求，只是使用多线程来处理数据的读写和协议解析，执行命令还是使用单线程。
+
+
+
+这样做的目的是因为redis的性能瓶颈在于网络IO而非CPU，使用多线程能提升IO读写的效率，从而整体提高redis的性能。
+
+
+
+
 
 主从复制： [Redis主从复制的配置和实现原理 - 掘金](https://juejin.im/post/6844903943764443149)
 
 ### 压缩用什么算法
+
+lzf，压缩列表
 
 ## MQ
 
@@ -265,15 +416,11 @@ RabbitMQ有三种模式：
 
 ## 垃圾回收算法
 
-
-
 ### 引用计数
 
 优点：
 
 1。 及时清理内存
-
-
 
 缺点：
 
@@ -293,15 +440,11 @@ RabbitMQ有三种模式：
 
 2。 内存碎片问题
 
-
-
 ### 标记整理
 
 优点：
 
 1。 解决了内存碎片的问题
-
-
 
 缺点：
 
@@ -309,34 +452,18 @@ RabbitMQ有三种模式：
 
 2。 不可预测的内存地址改变会给调试程序增加难度。
 
-
-
-
-
 ### 复制算法
-
-
 
 复制算法的核心就是，将原有的内存空间一分为二，每次只用其中的一块，在垃圾回收时，将正在使用的对象复制到另一个内存空间中，然后将该内存空间清空，交换两个内存的角色，完成垃圾的回收。  
 如果内存中的垃圾对象较多，需要复制的对象就较少，这种情况下适合使用该方式并且效率比较高，反之，则不适合。
 
-
-
 优点 ： 1、在垃圾对象多的情况下，效率较高。 2、清理后，内存无碎片。
 
-
-
  缺点 ： 1、在垃圾对象少的情况下，不适用，如 ：老年代内存。 2、分配的2块内存空间，在同一时刻，只能使用一半，内存使用率较低。
-
-
 
 ### 分代算法
 
 前面介绍了很多种回收算法，每一种算法都有自己的优点也有缺点，谁都不能替代谁，所以根据垃圾回收对象的特点进行选择，才是明智的选择。 分代算法其实就是这样的，根据回收对象的特点进行选择，在jvm中，年轻代适合使用复制算法，老年代适合使用标记清除或标记压缩算法。
-
-
-
-
 
 ## HTTP / HTTP2 / HTTPS
 
@@ -369,18 +496,27 @@ dns劫持
 自旋锁与互斥锁
 
 - 自旋锁与互斥锁都是为了实现保护资源共享的机制。
-- 无论是自旋锁还是互斥锁，在任意时刻，都最多只能有一个保持者。
-- 获取互斥锁的线程，如果锁已经被占用，则该线程将进入睡眠状态；获取自旋锁的线程则不会睡眠，而是一直循环等待锁释放。
 
- 总结：
+- 无论是自旋锁还是互斥锁，在任意时刻，都最多只能有一个保持者。
+
+- 获取互斥锁的线程，如果锁已经被占用，则该线程将进入睡眠状态；获取自旋锁的线程则不会睡眠，而是一直循环等待锁释放。
+  
+  总结：
 
 - 自旋锁：线程获取锁的时候，如果锁被其他线程持有，则当前线程将循环等待，直到获取到锁。
+
 - 自旋锁等待期间，线程的状态不会改变，线程一直是用户态并且是活动的(active)。
+
 - 自旋锁如果持有锁的时间太长，则会导致其它等待获取锁的线程耗尽CPU。
+
 - 自旋锁本身无法保证公平性，同时也无法保证可重入性。
+
 - 基于自旋锁，可以实现具备公平性和可重入性质的锁。
+
 - TicketLock:采用类似银行排号叫好的方式实现自旋锁的公平性，但是由于不停的读取serviceNum，每次读写操作都必须在多个处理器缓存之间进行缓存同步，这会导致繁重的系统总线和内存的流量，大大降低系统整体的性能。
+
 - CLHLock和MCSLock通过链表的方式避免了减少了处理器缓存同步，极大的提高了性能，区别在于CLHLock是通过轮询其前驱节点的状态，而MCS则是查看当前节点的锁状态。
+
 - CLHLock在NUMA架构下使用会存在问题。在没有cache的NUMA系统架构中，由于CLHLock是在当前节点的前一个节点上自旋,NUMA架构中处理器访问本地内存的速度高于通过网络访问其他节点的内存，所以CLHLock在NUMA架构上不是最优的自旋锁。
 
 ### 查询文件中出现次数最多的url(linux命令)
@@ -406,6 +542,14 @@ dns劫持
 ### 分布式锁
 
 ### 分布式事务
+
+- 二次提交
+
+- TCC
+
+- 补偿机制
+
+- 事务性消息
 
 ### 分布式存储
 
@@ -435,23 +579,61 @@ dns劫持
 
 ### 迷宫回路（回溯搜索）
 
-### 合并链表，判断是否闭环
-
 ### 二叉树遍历，不允许标记访问过的节点，且只用一个栈
 
 ### 股票买卖
 
 ### 打印出二叉树所有和为N的路径
 
-### 数字刚好大一个数字（贪心算法）
+### 贪心算法
+
+
+
+#### 数字刚好大一个数字
+
+
+
+### 子集
+
+#### 返回该数组所有可能的子集（幂集）
+
+```go
+func subsets(nums []int) [][]int {
+	sort.Slice(nums, func(i, j int) bool {
+		return nums[i] < nums[j]
+	})
+	r := make([][]int, 0)
+	r = append(r, []int{})
+	count := 0
+
+	for count < len(nums) {
+		tempR := make([][]int, 0)
+		for _, v := range r {
+			temp := make([]int, 0)
+			temp = append(temp, v...)
+			temp = append(temp, nums[count])
+			tempR = append(tempR, temp)
+		}
+		count++
+
+		for _, i := range tempR {
+			r = append(r, i)
+		}
+	}
+
+	return r
+}
+```
+
+
+
+
 
 ### 链表：奇数生序，偶数降序
 
 ### 64匹赛马
 
 ### LC152 乘积最大子数组
-
-### 反转链表
 
 ### 一个长字符串，一个不重复的字符串数组，找到一个子串，内容与数组相同
 
@@ -460,8 +642,6 @@ dns劫持
 ### 搬家
 
 ### 最大子数组，子数组可以组成顺子
-
-### 链表： 合并且排序
 
 ### 组合： 1-26对于a-z字母，组合情况
 
@@ -485,6 +665,222 @@ dns劫持
 
 ### 大数减法
 
+### 链表
+
+#### 两数相加
+
+```go
+/**
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */
+func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
+    result := &ListNode{0, nil}
+    carry := 0
+    cur := result
+
+    for l1 != nil || l2 != nil {
+        tem := 0
+        if l1 != nil {
+            tem += l1.Val
+            l1 = l1.Next
+        }
+
+        if l2 != nil {
+            tem += l2.Val
+            l2 = l2.Next
+        }
+
+        c := (tem + carry) / 10
+        nodeVal := (tem + carry) % 10
+        node := &ListNode{nodeVal, nil}
+        carry = c
+        cur.Next = node
+        cur = node
+    }
+
+    if carry > 0 {
+        cur.Next = &ListNode{carry, nil}
+    }
+
+    return result.Next
+}
+```
+
+#### 翻转链表
+
+```go
+/**
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */
+func reverseList(head *ListNode) *ListNode {
+    if head == nil || head.Next == nil {
+        return head
+    }
+
+    var pre *ListNode
+    var current *ListNode
+
+    var next = head
+
+    for next != nil {
+        current = next.Next
+        next.Next = pre
+        pre = next
+        next = current
+    }
+
+    return pre
+}
+```
+
+#### 链表中倒数第K个节点
+
+```go
+/**
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */
+func getKthFromEnd(head *ListNode, k int) *ListNode {
+    if head == nil || k <= 0 {
+        return nil
+    }
+
+    var quick = head
+    var slow = head
+    var count = 0
+
+    for quick != nil {
+        if count == k {
+            quick = quick.Next
+            slow = slow.Next
+        } else {
+            quick = quick.Next
+            count++
+        }
+    }
+
+    return slow
+}
+```
+
+#### 删除链表的倒数第N个节点
+
+```go
+/**
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */
+func removeNthFromEnd(head *ListNode, n int) *ListNode {
+    if n == 0 || n == 1 {
+        return nil
+    }
+    var quick *ListNode = head
+    var slow *ListNode = head
+    var slowPre *ListNode = head
+    for i := 0; i < n - 1; i++ {
+        quick = quick.Next
+    }
+
+    for quick != nil && quick.Next != nil {
+        quick = quick.Next
+        slowPre = slow
+        slow = slow.Next
+    }
+
+    slowPre.Next = slow.Next
+    return head
+}
+```
+
+#### 合并两个排序的链表
+
+```go
+/**
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */
+func mergeTwoLists(l1 *ListNode, l2 *ListNode) *ListNode {
+    var nList = &ListNode{0, nil}
+    cur := nList
+
+    for l1 != nil && l2 != nil {
+        if l1.Val >= l2.Val {
+            cur.Next = &ListNode{l2.Val, nil}
+            l2 = l2.Next
+        } else {
+            cur.Next = &ListNode{l1.Val, nil}
+            l1 = l1.Next
+        }
+        cur = cur.Next
+    }
+
+    if l1 != nil {
+        cur.Next = l1
+    }
+
+    if l2 != nil {
+        cur.Next = l2
+    }
+
+    return nList.Next
+}
+```
+
+#### 合并K个升序链表
+
+#### 单链表，每N个翻转
+
+#### 链表是否有环
+
+#### 链表：奇数生序，偶数降序
+
+#### 奇偶链表
+
+```go
+/**
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */
+func oddEvenList(head *ListNode) *ListNode {
+    if head == nil || head.Next == nil {
+        return head
+    }
+
+    head2 := head.Next
+    p1 := head
+    p2 := head2
+    for p1.Next != nil && p2.Next != nil {
+        p1.Next = p2.Next
+        p1 = p1.Next
+        p2.Next = p1.Next
+        p2 = p2.Next
+    }
+
+    p1.Next = head2
+    return head
+}
+```
+
 ## 大数据处理
 
 ### 大文件topK
@@ -494,3 +890,7 @@ dns劫持
 sql题，出现过2次及以上相同名字的人的名字
 
 ### 正则： 写一个手机号的正则表达式，13开头，11位数
+
+```bash
+/^13\d{9}$/
+```

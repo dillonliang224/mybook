@@ -31,3 +31,15 @@ wrk -t12 -c400 -d30s http://127.0.0.1:8080/index.html
 [http 性能测试 wrk使用教程 - 掘金](https://juejin.im/post/6844903550288396296)
 
 [GitHub - wg/wrk: Modern HTTP benchmarking tool](https://github.com/wg/wrk)
+
+
+
+### 字符串替换
+
+```sh
+## 模版
+result=$(echo "$firstString" | sed "s/Suzi/$secondString/")
+
+## demo 把字符串'go interface'改为'go-interface'
+result=$(echo "$1" | sed "s/ /-/g")
+```

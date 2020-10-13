@@ -32,6 +32,7 @@
 	* [从BIOS到bootloader](linux/bios-bootloader.md)
 	* [linux常用命令](每日小记/linux.md)
 * [每日小记](每日小记/README.md)
+	* [面试](md/bytedance.md)
 	* [grpc-关于](每日小记/grpc-about.md)
 	* [redis](每日小记/redis.md)
 	* [激活dash](每日小记/20190904-激活dash.md)
