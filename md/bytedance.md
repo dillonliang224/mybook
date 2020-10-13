@@ -40,8 +40,6 @@ B树的非叶子节点存储key+key指向的数据+指向下一节点的指针
 
 所以说B+树非叶子节点能存储更多的key，且利于范围查询，而B树要做中序遍历
 
-
-
 索引的存储形式有聚簇索引和非聚簇索引，其中聚簇索引是表中的主键索引，如果没有主键索引，那么使用表中的唯一索引，如果还没有，innodb会默认创建一个隐式的主键。
 
 非聚簇索引存储的是key和指向聚簇索引的的主键
@@ -49,8 +47,6 @@ B树的非叶子节点存储key+key指向的数据+指向下一节点的指针
 所以如果通过非聚簇索引查询数据，它要先去非聚簇索引查询到主键ID的值，然后再去聚簇索引里查找对应的数据地址。这就是mysql里的回表现象。
 
 当然，如果非聚簇索引包含了要查询的所有键，那么不需要回表查询，这种现象叫做索引覆盖。
-
-
 
 ### 锁的类型有哪些
 
@@ -60,13 +56,9 @@ mysql锁分为**共享锁**和**排他锁**，也叫做读锁和写锁。
 
 写锁是排他的，它会阻塞其他的写锁和读锁。从颗粒度来区分，可以分为**表锁**和**行锁**两种。
 
-
-
 表锁会锁定整张表并且阻塞其他用户对该表的所有读写操作，比如alter修改表结构的时候会锁表。
 
 行锁又可以分为**乐观锁**和**悲观锁**，悲观锁可以通过for update实现，乐观锁则通过版本号实现。
-
-
 
 ### 事务特性和隔离级别
 
@@ -80,8 +72,6 @@ mysql锁分为**共享锁**和**排他锁**，也叫做读锁和写锁。
 
 - 持久性
 
-
-
 隔离级别分别是：
 
 - read uncommit: 读未提交，可能会读到其他事务未提交的数据，也叫做脏读。
@@ -91,8 +81,6 @@ mysql锁分为**共享锁**和**排他锁**，也叫做读锁和写锁。
 - repeatable read： 可重复读，这是mysql的默认级别，就是每次读取结果都一样，但是**有可能产生幻读**。间隙锁+MVCC解决幻读问题
 
 - serializable：串行，一般是不会使用的，它会给每一行读取的数据加锁，会导致大量超时和锁竞争的问题。
-
-
 
 #### ACID靠什么保证
 
@@ -104,13 +92,9 @@ I隔离性由MVCC来保证
 
 D持久性由内存+redo log来保证，mysql修改数据同时在内存和redo log记录这次操作，事务提交的时候通过redo log刷盘，宕机的时候可以从redo log恢复。
 
-
-
 ### MVCC
 
 MVCC： 多版本并发控制，实际上就是保存了数据在某个时间点的快照。
-
-
 
 ### readview
 
@@ -153,8 +137,6 @@ MVCC： 多版本并发控制，实际上就是保存了数据在某个时间点
 https://zhuanlan.zhihu.com/p/66791480
 
 ### 日志种类，主从同步机制，数据延迟
-
-
 
  日志种类 https://database.51cto.com/art/201806/576300.htm
 
@@ -209,11 +191,7 @@ Note：
 **异步复制**就是最上面所说的有从库读取二进制文件，并写入本地中继日志里，主库执行完事务后立刻返回
 **全同步复制**就是主库要等所有从库复制了数据后才返回，严重影响性能
 
- 
-
 ### 分库分表
-
-
 
 账户600万*28
 
@@ -224,8 +202,6 @@ Note：
 购买记录单条： 600万
 
 金币日志：9000万 16个库
-
-
 
 简单来说，数据的切分就是通过某种特定的条件，将我们存放在同一个数据库中的数据分散存放到多个数据库（主机）中，以达到分散单台设备负载的效果，即分库分表。
 
@@ -262,8 +238,6 @@ MySQL 读写分离能提高性能的原因在于：
 
 ## Redis
 
-
-
 #### 基本数据类型
 
 - 字符串：sds
@@ -278,8 +252,6 @@ MySQL 读写分离能提高性能的原因在于：
 
 - 压缩列表ziplist
 
-
-
 #### 为什么这么快
 
 单机redis可以支撑每秒10几万的并发，主要因为如下几点：
@@ -292,19 +264,11 @@ MySQL 读写分离能提高性能的原因在于：
 
 - 基于非阻塞的I/O多路复用机制
 
-
-
 #### 为什么Redis6.0之后又改用多线程呢？
 
 redis使用多线程并非是完全摒弃单线程，redis还是使用单线程模型来处理客户端的请求，只是使用多线程来处理数据的读写和协议解析，执行命令还是使用单线程。
 
-
-
 这样做的目的是因为redis的性能瓶颈在于网络IO而非CPU，使用多线程能提升IO读写的效率，从而整体提高redis的性能。
-
-
-
-
 
 主从复制： [Redis主从复制的配置和实现原理 - 掘金](https://juejin.im/post/6844903943764443149)
 
@@ -587,11 +551,7 @@ dns劫持
 
 ### 贪心算法
 
-
-
 #### 数字刚好大一个数字
-
-
 
 ### 子集
 
@@ -599,35 +559,31 @@ dns劫持
 
 ```go
 func subsets(nums []int) [][]int {
-	sort.Slice(nums, func(i, j int) bool {
-		return nums[i] < nums[j]
-	})
-	r := make([][]int, 0)
-	r = append(r, []int{})
-	count := 0
+    sort.Slice(nums, func(i, j int) bool {
+        return nums[i] < nums[j]
+    })
+    r := make([][]int, 0)
+    r = append(r, []int{})
+    count := 0
 
-	for count < len(nums) {
-		tempR := make([][]int, 0)
-		for _, v := range r {
-			temp := make([]int, 0)
-			temp = append(temp, v...)
-			temp = append(temp, nums[count])
-			tempR = append(tempR, temp)
-		}
-		count++
+    for count < len(nums) {
+        tempR := make([][]int, 0)
+        for _, v := range r {
+            temp := make([]int, 0)
+            temp = append(temp, v...)
+            temp = append(temp, nums[count])
+            tempR = append(tempR, temp)
+        }
+        count++
 
-		for _, i := range tempR {
-			r = append(r, i)
-		}
-	}
+        for _, i := range tempR {
+            r = append(r, i)
+        }
+    }
 
-	return r
+    return r
 }
 ```
-
-
-
-
 
 ### 链表：奇数生序，偶数降序
 
@@ -806,6 +762,14 @@ func removeNthFromEnd(head *ListNode, n int) *ListNode {
 }
 ```
 
+
+
+
+
+#### 链表中倒数第K个节点
+
+#### 删除链表的倒数第N个节点
+
 #### 合并两个排序的链表
 
 ```go
@@ -879,6 +843,7 @@ func oddEvenList(head *ListNode) *ListNode {
     p1.Next = head2
     return head
 }
+
 ```
 
 ## 大数据处理
