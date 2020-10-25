@@ -42,3 +42,11 @@ LRU
 ## 消息丢失
 
 ## 分布式事务
+
+
+
+[在 macOS 上使用 Docker Desktop 启动 Kubernetes 踩坑全记录](https://juejin.im/post/6844903950496301063)
+
+[【坑】Docker for MAC 中一直 Kubernetes is starting，不能正确开启](https://juejin.im/post/6844904039709163527)
+
+[HTTPS 温故知新（一） —— 开篇](https://halfrost.com/https-begin/)
