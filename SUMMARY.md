@@ -22,6 +22,7 @@
   * [gc](golang/gc.md)
   * [GPM](golang/GPM.md)
   * [Make和New](golang/make-new.md)
+  * [Mutex](golang/mutex.md)
 * [deno学习](deno/index.md)
   * [01](deno/01.md)
   * [02](deno/02.md)
@@ -43,5 +44,3 @@
   * [eslint](每日小记/eslint.md)
   * [备份mongodb数据](每日小记/备份mongodb数据.md)
   * [mac原生支持NTFS](每日小记/mac原生支持NTFS.md)
-
-
