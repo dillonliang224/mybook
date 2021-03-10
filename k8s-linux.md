@@ -1,10 +1,6 @@
 linux
 
-
-
 新机器操作
-
-
 
 1。 登陆机器，配置ssh，hostname
 
@@ -17,5 +13,3 @@ linux
 https://cloud.tencent.com/developer/article/1519545
 
 5。
-
-
