@@ -44,3 +44,4 @@
   * [eslint](每日小记/eslint.md)
   * [备份mongodb数据](每日小记/备份mongodb数据.md)
   * [mac原生支持NTFS](每日小记/mac原生支持NTFS.md)
+  * [mac软件清单](每日小记/mac清单.md)
