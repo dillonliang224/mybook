@@ -1,18 +1,10 @@
-
-
 --
 
 ARP(Address Resolution Protocol)是一种用以解析地址的协议，根据通信方的IP地址就可以反查出对应的MAC地址。
 
-
-
 MAC地址： Media Access Control Address
 
-
-
 管线化技术，能够同时并行发送多个请求，而不需要一个接一个地等待响应了。
-
-
 
 ### 常用状态码
 
