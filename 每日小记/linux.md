@@ -32,8 +32,6 @@ wrk -t12 -c400 -d30s http://127.0.0.1:8080/index.html
 
 [GitHub - wg/wrk: Modern HTTP benchmarking tool](https://github.com/wg/wrk)
 
-
-
 ### 字符串替换
 
 ```sh
