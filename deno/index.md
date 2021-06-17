@@ -38,7 +38,7 @@ Deno明确承担了运行时和程序包管理器的角色。
 
 - 仅运送一个可执行文件(Deno)
 - 提供安全默认值
-	- 除非明确允许，否则脚本无法访问File,Network,Environment
+  - 除非明确允许，否则脚本无法访问File,Network,Environment
 - 与浏览器兼容：完全用JavaScript编写且不使用全局Deno名称空间（或对其进行功能测试）的Deno程序的子集，也应该能够在现代Web浏览器中运行而无需更改。
 - 提供内置工具，例如单元测试，代码格式化和整理，以改善开发人员的体验。
 - 不将V8概念暴露到用户层
@@ -47,15 +47,16 @@ Deno明确承担了运行时和程序包管理器的角色。
 ## 与Node.js相比
 
 - Deno不使用npm
-	- 它使用URL或文件路径来引用模块
+  - 它使用URL或文件路径来引用模块
 - Deno在其模块解析算法中未使用package.json
 - 在Deno中，所有的async操作，均返回promise。因此，Deno提供与Node.js不同的API
 - 针对File,Network,Environment,Deno需要显示的指定访问权限
 - 未捕获的异常将导致Deno崩溃
 - 使用ES module规范，不再支持require()形式。通过URL引用第三方模块：
-```js
-import * as log from "https://deno.land/std/log/mod.ts";
-```
+  
+  ```js
+  import * as log from "https://deno.land/std/log/mod.ts";
+  ```
 
 ## 其他
 

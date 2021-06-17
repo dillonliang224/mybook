@@ -46,6 +46,24 @@ Rust by Example(RBE)是一个用来阐述Rust中各种概念和标准库的可�
 
 - 泛型：泛型，学习如何写一个方法或数据类型来支持不同类型的参数
 
-- 
+- Scoping rules: 作用域规则
+
+- Traits: A trait is a collection of methods defined for an unkonwn type: Self
+
+- Macros
+
+- Error handing: 错误处理，学习如何处理rust的错误
+
+- Std library types: Rust标准库，学习一些自定义类型
+
+- Std misc: 更多的类型，比如说文件处理，线程
+
+- Testing: Rust中的各种测试
+
+- Unsafe Operations： 不安全操作
+
+- Compatibility: 兼容性
+
+- Meta: 文档，性能测试
 
 
