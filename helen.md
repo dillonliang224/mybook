@@ -107,5 +107,4 @@ spec:
             name: vector-config
         - name: log-dir
           emptyDir: {}
-
 ```
