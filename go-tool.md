@@ -12,8 +12,6 @@
 
 - Mutex Profiling: 互斥锁分析，报告互斥锁的竞争情况
 
-
-
 ### 交互式终端下，各字段含义：
 
 | 字段    | 含义                 |
@@ -25,15 +23,11 @@
 | cum%  | 函数自身及其调用函数的运行耗时总比例 |
 | name  | 函数名                |
 
-
-
 ### CPU Profiling
 
 ```bash
 go tool pprof http://localhost:8080/debug/pprof/profile\?seconds\=60
 ```
-
-
 
 ### Heap Profiling
 
@@ -54,19 +48,13 @@ go tool pprof -inuse_objects http://localhost:8080/debug/pprof/heap
 go tool pprof -alloc_space http://localhost:8080/debug/pprof/heap
 ```
 
-
-
 ### Goroutine Profiling
 
 ```bash
 go tool pprof http://localhost:8080/debug/pprof/goroutine
 ```
 
-
-
 在查看goroutine时，可以使用**traces**命令，这个命令会打印出对应的所有调用栈，以及指标信息。
-
-
 
 ### 查看trace
 
@@ -74,8 +62,6 @@ go tool pprof http://localhost:8080/debug/pprof/goroutine
 curl http://localhost:8080/debug/pprof/trace\?seconds\=20 > trace.out
 go tool trace trace.out
 ```
-
-
 
 会在本地启一个浏览器，查看跟踪，主要字段含义：
 
@@ -89,10 +75,6 @@ go tool trace trace.out
 | User defined tasks               | 用户自定义任务      |
 | User defined regions             | 用户自定义区域      |
 | Minimum mutator utilization      | 最低Mutator利用率 |
-
-
-
-
 
 ### 可视化界面
 
@@ -108,19 +90,13 @@ go tool pprof -http=:6001 profile
 ## 需要注意的是，本地需要安装graphviz组件
 ```
 
-
-
 ### 通过测试用例做分析
 
 ```bash
 go test -bench=. -cpuprofile=cpu.profile
 ```
 
-
-
 执行完bench后，会在当前命令生成cpu.profile文件
-
-
 
 ### 检查内存是否泄露
 
@@ -148,8 +124,6 @@ go tool pprof --base base.heap current.heap
 go tool pprof --http :9090 --base base.heap current.heap
 ```
 
-
-
 ## string和bytes转换
 
 ### string to bytes
@@ -169,10 +143,6 @@ func Bytes2String(b []byte) string {
     return *(*string)(unsafe.Pointer(&b))
 }
 ```
-
-
-
-
 
 ---
 
